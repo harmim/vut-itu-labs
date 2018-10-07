@@ -1,8 +1,13 @@
-EXECUTABLE := main.exe
+MAIN := main
 
-$(EXECUTABLE): main.c
+
+$(MAIN).exe: $(MAIN).c
+
+
+%.exe: %.c
 	gcc $< -mwindows -o $@
+
 
 .PHONY: clean
 clean:
-	rm -f $(EXECUTABLE)
+	rm -f *.exe

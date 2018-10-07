@@ -11,7 +11,7 @@ int CALLBACK WinMain(HINSTANCE, HINSTANCE, LPSTR, int);
 LRESULT CALLBACK MainWndProc(HWND, UINT, WPARAM, LPARAM);
 
 
-// Application entry point.
+// Application entry point. This is the same as main() in standart C.
 int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	hInst = hInstance; // Save the application-instance handle.
@@ -36,12 +36,12 @@ int CALLBACK WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 	// Create window of registered class.
 	HWND hWnd = CreateWindow(
 		(LPCSTR) "MainWClass", // name of window class
-		(LPCSTR) "Hello FIT!", // title-bar string
+		(LPCSTR) "ITU", // title-bar string
 		WS_OVERLAPPEDWINDOW, // top-level window
-		150, // default horizontal position
-		150, // default vertical position
-		750, // default width
-		150, // default height
+		50, // default horizontal position
+		100, // default vertical position
+		640, // default width
+		480, // default height
 		(HWND) NULL, // no owner window
 		(HMENU) NULL, // use class menu
 		hInstance, // handle to application instance
@@ -82,6 +82,14 @@ LRESULT CALLBACK MainWndProc(
 {
 	switch (uMsg)
 	{
+		case WM_CREATE:
+			// Initialize the window.
+			return 0;
+
+		case WM_SIZE:
+			// Set the size and position of the window.
+			return 0;
+
 		case WM_DESTROY:
 			// Clean up window-specific data objects.
 			PostQuitMessage(0);
