@@ -1,14 +1,25 @@
 #include <windows.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+
+#define COLOR_RED 0b00
+#define COLOR_GREEN 0b01
+#define COLOR_BLUE 0b10
 
 
 // Global variable.
 HINSTANCE hInst;
+int color;
+COLORREF rgbColor;
 
 
 // Function prototypes.
 int CALLBACK WinMain(HINSTANCE, HINSTANCE, LPSTR, int);
 LRESULT CALLBACK MainWndProc(HWND, UINT, WPARAM, LPARAM);
+void onPaint(HWND hWnd);
+void changeRgbColor();
 
 
 // Application entry point. This is the same as main() in standart C.
@@ -83,11 +94,30 @@ LRESULT CALLBACK MainWndProc(
 	switch (uMsg)
 	{
 		case WM_CREATE:
-			// Initialize the window.
+			changeRgbColor();
 			return 0;
 
-		case WM_SIZE:
-			// Set the size and position of the window.
+		case WM_PAINT:
+			onPaint(hWnd);
+			return 0;
+
+		case WM_MOUSEMOVE:
+			InvalidateRect(hWnd, NULL, TRUE);
+			return 0;
+
+		case WM_LBUTTONDOWN:
+			changeRgbColor();
+			InvalidateRect(hWnd, NULL, TRUE);
+			return 0;
+
+		case WM_KEYDOWN:
+			switch (wParam)
+			{
+				case VK_RETURN:
+					changeRgbColor();
+					InvalidateRect(hWnd, NULL, TRUE);
+					break;
+			}
 			return 0;
 
 		case WM_DESTROY:
@@ -95,11 +125,60 @@ LRESULT CALLBACK MainWndProc(
 			PostQuitMessage(0);
 			return 0;
 
-		//
-		// Process other messages.
-		//
-
 		default:
 			return DefWindowProc(hWnd, uMsg, wParam, lParam);
+	}
+}
+
+
+void onPaint(HWND hWnd)
+{
+	PAINTSTRUCT ps; // information can be used to paint the client area of a window owned by that application
+	HDC hDC = BeginPaint(hWnd, &ps); // prepares the specified window for painting (device context)
+
+	// print mouse coords
+	POINT mousePoint;
+	GetCursorPos(&mousePoint);
+	ScreenToClient(hWnd, &mousePoint);
+	char text[256]; // buffer to store an output text
+	sprintf(text, "Mouse X: %ld, Y: %ld", (long) mousePoint.x, (long) mousePoint.y);
+	TextOut(
+		hDC, // handle to device context
+		1,
+		1,
+		text, // character string
+		(int) strlen(text) // number of characters
+	);
+
+	// print ellipse
+	HBRUSH brush = CreateSolidBrush(rgbColor);
+	HBRUSH oldbrush = SelectObject(hDC, brush);
+	Ellipse(hDC, 100, 100, 200, 200);
+	SelectObject(hDC, oldbrush);
+
+	DeleteDC(hDC); // deletes the specified device context
+	EndPaint(hWnd, &ps); // marks the end of painting in the specified window
+}
+
+
+void changeRgbColor()
+{
+	switch (color)
+	{
+		case COLOR_RED:
+			color = COLOR_GREEN;
+			rgbColor = RGB(0, 255, 0);
+			return;
+
+		case COLOR_GREEN:
+			color = COLOR_BLUE;
+			rgbColor = RGB(0, 0, 255);
+			return;
+
+		case COLOR_BLUE:
+		default:
+			color = COLOR_RED;
+			rgbColor = RGB(255, 0, 0);
+			return;
 	}
 }
