@@ -92,8 +92,8 @@ LRESULT CALLBACK MainWndProc(
 		case WM_LBUTTONUP:
 			ReleasePoint.x = (int) LOWORD(lParam);
 			ReleasePoint.y = (int) HIWORD(lParam);
-			if (ReleasePoint.x > 0x7FFF) ReleasePoint.x -= (long)0xFFFF;
-			if (ReleasePoint.y > 0x7FFF) ReleasePoint.y -= (long)0xFFFF;
+			if (ReleasePoint.x > 0x7FFF) ReleasePoint.x -= (long) 0xFFFF;
+			if (ReleasePoint.y > 0x7FFF) ReleasePoint.y -= (long) 0xFFFF;
 			ClientToScreen(hWnd, &ReleasePoint);
 			hwndTmp = WindowFromPoint(ReleasePoint);
 			// SetWindowText(hwndTmp, ...);
