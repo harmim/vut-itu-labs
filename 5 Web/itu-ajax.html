@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<title>ITU ajax</title>
+	<meta charset="utf-8">
+	<style rel="stylesheet" type="text/css">
+		div, input { margin: 10px; }
+		#chatArea { height: 300px; border: solid #aaa 1px; overflow: auto; }
+		#status { border: solid #aaa 1px; }
+	</style>
+</head>
+<body>
+	<div id="chatArea"></div>
+
+	<form onsubmit="return uploadData();">
+		<input type="text" id="newMessageString">
+		<input type="submit" value="send">
+	</form>
+
+	<div id="status">&nbsp;</div>
+
+	<script type="application/javascript">
+		let lastMessageId = null;
+		const apiUrl = "http://www.stud.fit.vutbr.cz/~xmlich02/itu-ajax/api.php"
+
+		// XMLHttpRequest object constructor (for compatibility with various browsers).
+		function createXmlHttpRequestObject() {
+			let xmlhttp = null;
+			try {
+				xmlHttp = new XMLHttpRequest(); //should work on all browsers except IE6 or older
+			} catch (e) {
+				try {
+					xmlHttp = new ActiveXObject("Microsoft.XMLHttp"); //browser is IE6 or older
+				} catch (e) {
+					// ignore error
+				}
+			}
+
+			if (!xmlHttp) {
+				alert("Error creating the XMLHttpRequest object.");
+			} else {
+				return xmlHttp;
+			}
+		}
+
+		function uploadData() {
+			document.getElementById("status").innerHTML = "uploadData()";
+
+			try {
+				const xmlHttp = createXmlHttpRequestObject(); //stores XMLHttpRequestObject
+				xmlHttp.open("POST", apiUrl, true);
+				xmlHttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded;");
+				xmlHttp.onreadystatechange = downloadData;
+				xmlHttp.send("data=" + document.getElementById("newMessageString").value);
+			} catch (e) {
+				alert(e.toString());
+			}
+
+			return false; // to avoid default form submit behavior
+		}
+
+		function downloadData() {
+			document.getElementById("status").innerHTML = "downloadData()";
+
+			const xmlHttp = createXmlHttpRequestObject();
+			xmlHttp.open("GET", apiUrl, true);
+			xmlHttp.onreadystatechange = function() {
+				if (xmlHttp.readyState === 4 && xmlHttp.status === 200) {
+					const data = JSON.parse(xmlHttp.responseText);
+					for (let i in data) {
+						if (lastMessageId !== null && data[i].id <= lastMessageId) {
+							continue;
+						}
+						document.getElementById("chatArea").innerHTML +=
+							data[i].login + ": " + data[i].cnt + "<hr>";
+						lastMessageId = data[i].id;
+					}
+					document.title = data[data.length - 1].login;
+				}
+			};
+			xmlHttp.send(null);
+		}
+
+		downloadData();
+		setInterval(downloadData, 1000);
+	</script>
+</html>
